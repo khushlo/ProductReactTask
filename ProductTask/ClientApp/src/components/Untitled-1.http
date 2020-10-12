@@ -1,0 +1,35 @@
+###
+GET https://localhost:44396/api/Category/CategoryList
+
+
+###
+POST https://localhost:44396/api/Category/AddCategory
+
+{
+    "CName":"New Entry",
+    "Status":0,
+    "Description":"Test 3"
+}
+
+
+###
+DELETE https://localhost:44396/api/Category/DeleteCategory/8
+
+
+###
+GET https://localhost:44396/api/product/GetProductList
+
+###
+GET https://localhost:44396/api/product/GetById/2
+
+###
+POST https://localhost:44396/api/product/AddProduct
+
+{
+    "PId":"0",
+    "PName":"Khushal Test Product",
+    "Cost":"580.98",
+    "Status":"1",
+    "Description":"Test Product By KD",
+    "Categories":["Khushal 1","KD Test 3","Test 4"]
+}
