@@ -99,7 +99,6 @@ function ProductList(props) {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [data, setData] = React.useState([]);
-  const [isRefresh,setRefresh] = React.useState(false);
 
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage);
 
@@ -123,11 +122,9 @@ function ProductList(props) {
   };
 
   function handleEditById(PId){
-      debugger;
       fetch("/api/Product/GetById/" + PId).then((response) =>
         response.json()
         ).then((data) => {
-          debugger;
           props.setProduct(data.Item);
           props.setIsEdit(!props.isEdit);
         })    

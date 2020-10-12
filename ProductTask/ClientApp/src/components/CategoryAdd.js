@@ -14,18 +14,7 @@ import FormLabel from "@material-ui/core/FormLabel";
 import Input from "@material-ui/core/Input";
 import InputLabel from "@material-ui/core/InputLabel";
 import axios from 'axios';
-import Button from 'react-bootstrap/Button'
-
-function handleEdit(objCat) {
-
-};
-
-const initialvalues = {
-    CId: 0,
-    CName: "",
-    Status: 1,
-    Description: "",
-  };
+import { Button } from 'reactstrap';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -41,8 +30,10 @@ const useStyles = makeStyles((theme) => ({
 export default function CategoryAdd(props) {
   const [open, setOpen] = React.useState(props.open);
   const [objModel, setModel] = React.useState(props.objModel);
-  const [values, setValues] = useState(initialvalues);
+  const [values, setValues] = useState(props.defaultCategory);
   const classes = useStyles();
+
+  console.log(values);
 
   const HandleInputChange = (e) => {
     const { name, value } = e.target;
@@ -59,22 +50,48 @@ export default function CategoryAdd(props) {
 
   const handleSave = e => {
     setValues(oldValues => { return {...oldValues,"Status":parseInt(oldValues.Status)}} )
+    if(!props.isEdit){  
       axios.post('api/Category/AddCategory', values)
       .then(response =>{
-        props.CloseForm();
+        if(response.data.Message != null){
+          props.setMessage(response.data.Message);
+        }
+        if(response.data.Error != null){
+          props.setError(response.data.Error);
+        }          
+        props.setRefresh(!props.isRefresh);
+        props.setIsEdit(false);
+        props.setDialog(!props.getDialog);          
       })
       .catch(error=>{
-        console.log(error)
-      })      
+        props.setError(error.title);
+      })  
+    }
+    else{
+      axios.put('api/Category/UpdateCategory', values)
+      .then(response =>{
+        if(response.data.Message != null){
+          props.setMessage(response.data.Message);
+        }
+        if(response.data.Error != null){
+          props.setError(response.data.Error);
+        }          
+        props.setRefresh(!props.isRefresh);
+        props.setIsEdit(false);
+        props.setDialog(!props.getDialog);          
+      })
+      .catch(error=>{
+        props.setError(error.title);
+      })  
+    }  
+    setOpen(false) ;
   }
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
   const handleClose = () => {
-    // setOpen(false);
-    // props.setRefresh(!props.isRefresh);
+    setOpen(false);
+    props.setRefresh(!props.isRefresh);
+    props.setDialog(false);  
+    props.setIsEdit(false);  
   };
 
   React.useEffect(() => {
@@ -148,18 +165,13 @@ export default function CategoryAdd(props) {
                 />
               </Grid>
             </Grid>
-            <Grid container>
-              <Grid xs={3}></Grid>
-              <Grid xs={6}>
-                <Button onClick={handleSave} variant="primary" size="md" block>
-                  Save
-                </Button>
-              </Grid>
-            </Grid>
           </form>
         </DialogContent>
 
         <DialogActions>
+            <Button onClick={handleSave} color="success">
+              Submit
+            </Button>
           <Button onClick={handleClose} color="danger">
             Cancel
           </Button>

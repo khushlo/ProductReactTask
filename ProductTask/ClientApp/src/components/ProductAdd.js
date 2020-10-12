@@ -69,7 +69,7 @@ function ProductAdd(props) {
     const [open, setOpen] = React.useState(props.open);
     const [objModel,setModel] = React.useState(props.objModel);
     const [getValue,setvalue] = React.useState(props.initialValue);
-    const [catName, setCatName] = React.useState(props.initialValue.Categories);
+    const [catName, setCatName] = React.useState(props.initialValue.Categories == undefined?[]:props.initialValue.Categories);
     const [getDDL,setDDl] = React.useState([]);
     const classes = useStyles();
     const theme = useTheme();   
@@ -262,7 +262,7 @@ function ProductAdd(props) {
           </DialogContent>
 
           <DialogActions>
-          <Button onClick={handleSaveProduct} color="success">
+            <Button onClick={handleSaveProduct} color="success">
               Submit
             </Button>
             <Button onClick={handleClose} color="danger">

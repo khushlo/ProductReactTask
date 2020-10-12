@@ -91,7 +91,7 @@ function Product(props) {
 
     return (
         <div>
-            <Button className="btn-primary" variant="primary" onClick={() => setDialog(true)}>Add Product</Button>
+            <Button className="btn-primary" variant="primary" onClick={() => {setProduct(initialvalues); setDialog(true);}}>Add Product</Button>
             <br/>
             <ProductList isEdit={isEdit} setIsEdit={setIsEdit} setProduct ={setProduct} isRefresh ={isRefresh} setRefresh={setRefresh} setMessage = {setMessage} setError={setError}></ProductList>
             {getDialog && <ProductAdd 

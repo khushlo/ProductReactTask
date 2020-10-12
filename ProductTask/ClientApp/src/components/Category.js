@@ -1,230 +1,122 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableHead from '@material-ui/core/TableHead';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableFooter from '@material-ui/core/TableFooter';
-import TablePagination from '@material-ui/core/TablePagination';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
-import IconButton from '@material-ui/core/IconButton';
-import FirstPageIcon from '@material-ui/icons/FirstPage';
-import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import LastPageIcon from '@material-ui/icons/LastPage';
-import CategoryDialog from './CategoryDialog';
-import {handleEdit} from './CategoryDialog';
-import { Button } from 'reactstrap';
-import DeleteIcon from '@material-ui/icons/Delete';
-import EditIcon from '@material-ui/icons/Edit';
-import Tooltip from '@material-ui/core/Tooltip';
 import CategoryAdd from './CategoryAdd';
+import CategoryList from './CategoryList';
+import React, { useState } from 'react';
+import { Button } from 'reactstrap';
 
-const useStyles1 = makeStyles((theme) => ({
-  root: {
-    flexShrink: 0,
-    marginLeft: theme.spacing(2.5),
-  },
-}));
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 
-function TablePaginationActions(props) {
-  const classes = useStyles1();
-  const theme = useTheme();
-  const { count, page, rowsPerPage, onChangePage } = props;
-
-  const handleFirstPageButtonClick = (event) => {
-    onChangePage(event, 0);
-  };
-
-  const handleBackButtonClick = (event) => {
-    onChangePage(event, page - 1);
-  };
-
-  const handleNextButtonClick = (event) => {
-    onChangePage(event, page + 1);
-  };
-
-  const handleLastPageButtonClick = (event) => {
-    onChangePage(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
-  };
-
-  return (
-    <div className={classes.root}>
-      <IconButton
-        onClick={handleFirstPageButtonClick}
-        disabled={page === 0}
-        aria-label="first page"
-      >
-        {theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
-      </IconButton>
-      <IconButton onClick={handleBackButtonClick} disabled={page === 0} aria-label="previous page">
-        {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
-      </IconButton>
-      <IconButton
-        onClick={handleNextButtonClick}
-        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-        aria-label="next page"
-      >
-        {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
-      </IconButton>
-      <IconButton
-        onClick={handleLastPageButtonClick}
-        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-        aria-label="last page"
-      >
-        {theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
-      </IconButton>
-    </div>
-  );
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-
-TablePaginationActions.propTypes = {
-  count: PropTypes.number.isRequired,
-  onChangePage: PropTypes.func.isRequired,
-  page: PropTypes.number.isRequired,
-  rowsPerPage: PropTypes.number.isRequired,
+const initialvalues = {
+  CId: 0,
+  CName: "",
+  Status: 1,
+  Description: "",
 };
 
-// .sort((a, b) => (a.calories < b.calories ? -1 : 1));
-
-const useStyles2 = makeStyles({
-  table: {
-    minWidth: 500,
-  },
-});
 
 export default function Category() {
-  const classes = useStyles2();
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [data, setData] = React.useState([]);
-  const [objModel, setEdit] = React.useState([]);
+  const [getDialog,setDialog] = React.useState(false);
   const [isRefresh,setRefresh] = React.useState(false);
+  const [getMessage,setMessage] = useState('');
+  const [getError,setError] = useState('');
+  const [openMsg, setOpenMsg] = React.useState(false);
+  const [openError, setOpenError] = React.useState(false);
+  const [isEdit,setIsEdit] = React.useState(false);
+  const [currentCategory, setCategory] = useState(initialvalues);
 
-  React.useEffect(() =>
-  {
-      async function populateWeatherData() {
-      const response = await fetch('api/Category/CategoryList');
-      setData(await response.json());
+  const handleClose = (event, reason) => {
+    setMessage('');
+    if (reason === 'clickaway') {
+      return;
     }
-    populateWeatherData();
-  }, [isRefresh])
-  
-  
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage);
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+    setOpenMsg(false);
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+  const handleCloseError = (event, reason) => {
+    setError('');
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenError(false);
   };
 
-  function handleDelete(catId){
-    const requestOptions = {
-      method: 'DELETE'
-    };
-      fetch("/api/Category/DeleteCategory/" + catId, requestOptions).then((response) => {
-      }).then((result) => {
-        setRefresh(!isRefresh);
-    });
-  };
 
-  async function componentDidMount(catId) {
-    // GET request using fetch with async/await
-    const response = await fetch('/api/Category/GetById/'+catId);
-    const data = await response.json(); 
-    setEdit(data);   
-}; 
+React.useEffect(() =>
+{
+ function DisplayMessage(){
+   if(getMessage != '' && getMessage != null){
+    setOpenMsg(true);
+   }      
+ }
+ DisplayMessage();
 
-  function handleEditById(catId){
-    componentDidMount(catId);   
-  };
+}, [getMessage]);
+
+React.useEffect(() =>
+{
+ function DisplayError(){
+   if(getError != '' && getError != null){
+    setOpenError(true);
+   }      
+ }
+ DisplayError();
+ 
+}, [getError]);
+
+React.useEffect(() =>
+  {
+    function Editcategory(){
+      setDialog(true);
+     }
+    if(isEdit){
+      Editcategory();
+    }   
+}, [isEdit]);
+
 
   return (
     <>
-    <div>
-        <CategoryDialog setRefresh = {setRefresh} isRefresh={isRefresh} open={false} objModel={objModel}/>
-    </div>
+    <Button className="btn-primary" variant="primary" onClick={() =>{setCategory(initialvalues); setDialog(true);}}>Add Category</Button>
     <br/>
-    <TableContainer component={Paper}>
-      <Table className={classes.table} aria-label="custom pagination table">
-      <TableHead>
-         <TableRow>
-          <TableCell align="left">Category Id</TableCell>
-          <TableCell align="left">Category Name</TableCell>
-          <TableCell align="left">Availibility</TableCell>
-          <TableCell align="left">Description</TableCell>
-          <TableCell align="left">Edit</TableCell>
-          <TableCell align="left">Delete</TableCell>
-         </TableRow>
-      </TableHead>
-        <TableBody>
-          {          
-          (rowsPerPage > 0
-            ? data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            : data
-          ).map((row) => (
-                     <TableRow key={row.CId}>
-                       <TableCell component="th" scope="row">
-                         {row.CId}
-                       </TableCell>
-                       <TableCell align="left">{row.CName}</TableCell>
-                       <TableCell align="left">{row.Status ? 'Available' : 'Unavailable'}</TableCell>
-                       <TableCell align="left">{row.Description}</TableCell>
-
-                       <TableCell align="left">
-                          <Tooltip title="Edit">
-                            <IconButton aria-label="Edit" onClick={() => handleEditById(row.CId)}>
-                              <EditIcon/>
-                            </IconButton>
-                          </Tooltip>
-                       </TableCell>
-
-                       <TableCell align="left">
-                          <Tooltip title="Delete">
-                            <IconButton aria-label="delete" onClick={() => handleDelete(row.CId)}>
-                              <DeleteIcon/>
-                            </IconButton>
-                          </Tooltip>
-                       </TableCell>
-                     </TableRow>
-                   ))}
-
-          {emptyRows > 0 && (
-            <TableRow style={{ height: 53 * emptyRows }}>
-              <TableCell colSpan={6} />
-            </TableRow>
-          )
-          }
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-              colSpan={3}
-              count={Array.from(data).length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              SelectProps={{
-                inputProps: { 'aria-label': 'rows per page' },
-                native: true,
-              }}
-              onChangePage={handleChangePage}
-              onChangeRowsPerPage={handleChangeRowsPerPage}
-              ActionsComponent={TablePaginationActions}
+    {
+      getDialog && <CategoryAdd 
+                      getDialog={getDialog} setDialog={setDialog}
+                      isRefresh ={isRefresh} setRefresh={setRefresh}
+                      setMessage={setMessage}
+                      setError={setError}                      
+                      openMsg={openMsg} setOpenMsg={setOpenMsg}
+                      openError={openError} setOpenError={setOpenError}
+                      defaultCategory={currentCategory}
+                      open={true} 
+                      isEdit={isEdit} setIsEdit={setIsEdit}
+                   />
+    }
+            <CategoryList 
+                isRefresh ={isRefresh} 
+                setRefresh={setRefresh}
+                setMessage={setMessage}
+                setError={setError}                      
+                openMsg={openMsg} setOpenMsg={setOpenMsg}
+                openError={openError} setOpenError={setOpenError}
+                isEdit={isEdit} setIsEdit={setIsEdit}
+                setCategory ={setCategory}
             />
-          </TableRow>
-        </TableFooter>
-      </Table>
-    </TableContainer>
-    <CategoryAdd open={false}/>
+
+          <Snackbar open={openMsg} autoHideDuration={3000} onClose={handleClose}>
+              <Alert onClose={handleClose} severity="success">
+                {getMessage}
+              </Alert>
+            </Snackbar>
+
+            <Snackbar open={openError} autoHideDuration={3000} onClose={handleCloseError}>
+              <Alert onClose={handleCloseError} severity="error">
+                {getError}
+              </Alert>
+            </Snackbar>
     </>
   );
 }

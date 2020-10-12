@@ -29,7 +29,7 @@ namespace ProductTask.Controllers
         {
             using (var db = new DBHandler().OrmLite.Open())
             {
-                return db.Select(db.From<Category>().Where(x => x.Status > 0).Select(x => x.CName)).Select(x => x.CName);                
+                return db.Select(db.From<Category>().Where(x => x.Status > 0).Select(x => x.CName)).Select(x => x.CName);
             }
         }
 
@@ -37,21 +37,59 @@ namespace ProductTask.Controllers
         [Route("api/Category/GetById/{id}")]
         public ActionResult<Models.Category> GetById(int id)
         {
-            using (var db = new DBHandler().OrmLite.Open())
+            CustomResponse response = new CustomResponse();
+            try
             {
-                return db.SingleById<Models.Category>(id);
+                using (var db = new DBHandler().OrmLite.Open())
+                {
+                    response.Item =  db.SingleById<Models.Category>(id);
+                }
             }
+            catch (Exception ex)
+            {
+                response.Error = ex.Message;
+            }
+            return Ok(response);
         }
 
         [HttpPost]
         [Route("api/Category/AddCategory")]
         public ActionResult PostAddCategory([FromBody] Category objCat)
         {
-            using (var db = new DBHandler().OrmLite.Open())
+            CustomResponse response = new CustomResponse();
+            try
             {
-                db.Insert<Category>(objCat);
+                using (var db = new DBHandler().OrmLite.Open())
+                {
+                    db.Insert<Category>(objCat);
+                    response.Message = "Record Saved Successfully";
+                }
             }
-            return Ok();
+            catch (Exception ex)
+            {
+                response.Error = ex.Message;
+            }
+            return Ok(response);
+        }
+
+        [HttpPut]
+        [Route("api/Category/UpdateCategory")]
+        public ActionResult UpdateCategory([FromBody]Category objCat)
+        {
+            CustomResponse response = new CustomResponse();
+            try
+            {
+                using (var db = new DBHandler().OrmLite.Open())
+                {
+                    db.Update<Category>(objCat);
+                    response.Message = "Record Updated Successfully";
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Error = ex.Message;
+            }
+            return Ok(response);
         }
 
         [HttpDelete]
@@ -63,14 +101,14 @@ namespace ProductTask.Controllers
             {
                 using (var db = new DBHandler().OrmLite.Open())
                 {
-                    if (ValidateBeforeDelete(db,id))
+                    if (ValidateBeforeDelete(db, id))
                     {
                         db.DeleteById<Category>(id);
                         response.Message = "Deleted Successfully";
                     }
                     else
                     {
-                        response.Message = "Category Reference Exist in Products. Can't Delete it";
+                        response.Error = "Category Reference Exist in Products. Can't Delete it";
                     }
                 }
                 return Ok(response);
