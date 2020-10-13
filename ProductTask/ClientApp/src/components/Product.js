@@ -2,23 +2,12 @@ import ProductList from './ProductList';
 import ProductAdd from './ProductAdd';
 import React, { useState } from 'react';
 import { Button } from 'reactstrap';
-
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
-import { makeStyles } from '@material-ui/core/styles';
-import { initialvalues } from './Categoryform';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
-const useStyles = makeStyles((theme) => ({
-  root: {
-    width: '100%',
-    '& > * + *': {
-      marginTop: theme.spacing(2),
-    },
-  },
-}));
 
 const initialValue = {
   PId:0,
@@ -37,7 +26,7 @@ function Product(props) {
     const [open, setOpen] = React.useState(false);
     const [openError, setOpenError] = React.useState(false);
     const [isEdit,setIsEdit] = React.useState(false);
-    const [currentProduct, setProduct] = useState(initialvalues);
+    const [currentProduct, setProduct] = useState(initialValue);
 
       const handleClose = (event, reason) => {
         setMessage('');
@@ -59,7 +48,7 @@ function Product(props) {
     React.useEffect(() =>
     {
      function DisplayMessage(){
-       if(getMessage != '' && getMessage != null){
+       if(getMessage !== '' && getMessage !== null){
         setOpen(true);
        }      
      }
@@ -70,7 +59,7 @@ function Product(props) {
   React.useEffect(() =>
     {
      function DisplayError(){
-       if(getError != '' && getError != null){
+       if(getError !== '' && getError !== null){
         setOpenError(true);
        }      
      }
@@ -91,7 +80,7 @@ function Product(props) {
 
     return (
         <div>
-            <Button className="btn-primary" variant="primary" onClick={() => {setProduct(initialvalues); setDialog(true);}}>Add Product</Button>
+            <Button className="btn-primary" variant="primary" onClick={() => {setProduct(initialValue); setDialog(true);}}>Add Product</Button>
             <br/>
             <ProductList isEdit={isEdit} setIsEdit={setIsEdit} setProduct ={setProduct} isRefresh ={isRefresh} setRefresh={setRefresh} setMessage = {setMessage} setError={setError}></ProductList>
             {getDialog && <ProductAdd 

@@ -56,7 +56,6 @@ const useStyles = makeStyles((theme) => ({
   }));
 
   function getStyles(name, categoryName, theme) {
-    debugger;
     return {
       fontWeight:
       categoryName.indexOf(name) === -1
@@ -85,12 +84,15 @@ function ProductAdd(props) {
     }, [])
 
     const handleSaveProduct = e => {
-
-        if(getValue.PName == ''){
+        if(getValue.PName === ''){
           props.setError('Product Name must be non-empty');
           return;
         }
-        else if(getValue.Categories.length == 0){
+        if(getValue.Cost === ''){
+          props.setError('Please Enter Product Cost');
+          return;
+        }
+        else if(getValue.Categories.length === 0){
           props.setError('Select At least 1 Category');
           return;
         }
@@ -154,6 +156,19 @@ function ProductAdd(props) {
         });
       };
 
+      const handleCostChange =(e) =>{
+        const { name, value } = e.target;
+        debugger;
+        const expDecimal = /^[0-9\b]+$/;
+        const expDecimal2 = /^[0-9]+\.[0-9]{0,4}$/;
+        if(value === '' || expDecimal.test(value) || expDecimal2.test(value)){
+          setvalue({
+            ...getValue,
+            [name]: value,
+          });
+        }
+      }
+
     return (
         <div>
           <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
@@ -208,7 +223,7 @@ function ProductAdd(props) {
                         variant="outlined"
                         name="Cost"
                         value={getValue.Cost}
-                        onChange={HandleInputChange}
+                        onChange={handleCostChange}
                     />  
                 </Grid>
             </Grid>

@@ -48,7 +48,7 @@ export default function Category() {
 React.useEffect(() =>
 {
  function DisplayMessage(){
-   if(getMessage != '' && getMessage != null){
+   if(getMessage !== '' && getMessage !== null){
     setOpenMsg(true);
    }      
  }
